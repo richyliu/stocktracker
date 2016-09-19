@@ -80,7 +80,7 @@ class Util {
     
     
     
-    static getStockPriceAndTimestamp(begin, end, ticker, type, callback = function() {}) {
+    static getStockPriceAndTimeRange(begin, end, ticker, type, callback = function() {}) {
         this.getStockPriceFromTimeRange(begin, end, ticker, type, function(data, rawResp) {
             // array of 2 elements within array
             var newData = [];
@@ -111,8 +111,52 @@ class Util {
     
     
     
+    static getStockOHLCFromTimeRange(begin, end, ticker, callback = function() {}) {
+        var ohlcData = [];
+        
+        this.getStockPriceFromTimeRange(begin, end, ticker, this.TYPES().OPEN, function(data) {
+            console.log(data);
+            ohlcData.push(data);
+            
+            if (ohlcData.length === 4) allDone();
+        });
+        this.getStockPriceFromTimeRange(begin, end, ticker, this.TYPES().HIGH, function(data) {
+            console.log(data);
+            ohlcData.push(data);
+            
+            if (ohlcData.length === 4) allDone();
+        });
+        this.getStockPriceFromTimeRange(begin, end, ticker, this.TYPES().LOW, function(data) {
+            console.log(data);
+            ohlcData.push(data);
+            
+            if (ohlcData.length === 4) allDone();
+        });
+        this.getStockPriceFromTimeRange(begin, end, ticker, this.TYPES().CLOSE, function(data) {
+            console.log(data);
+            ohlcData.push(data);
+            
+            if (ohlcData.length === 4) allDone();
+        });
+        
+        
+        function allDone() {
+            console.log(ohlcData);
+            var ohlc = [];
+            
+            // loop through all data and combine together
+            for (var i = 0; i < ohlcData[0].length; i++) {
+                ohlc.push([ohlcData[0][i], ohlcData[1][i], ohlcData[2][i], ohlcData[3][i]]);
+            }
+            
+            callback(ohlc);
+        }
+    }
+    
+    
+    
     static drawChart(startDate, endDate, ticker, type) {
-        this.getStockPriceAndTimestamp(startDate, endDate, ticker, type, function(data) {
+        this.getStockPriceAndTimeRange(startDate, endDate, ticker, type, function(data) {
             // console.log(data);
             
             

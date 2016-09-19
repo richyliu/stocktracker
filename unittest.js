@@ -11,7 +11,8 @@
 PreUtil.loadAll();
 
 
-QUnit.module('basic functions', function() {
+QUnit.skip('basic functions', function() {
+// QUnit.module('basic functions', function() {
     QUnit.test('multipleTimeslotStockTracker buy', function(assert) {
         var stock = new multipleTimeslotStockTracker('AAPL');
     
@@ -92,17 +93,29 @@ QUnit.module('basic functions', function() {
 
 QUnit.module('Portfolio', function() {
     QUnit.test('buy', function(assert) {
+        var done = assert.async();
+        
         var p = new Portfolio(10000);
         
-        p.buy('aapl', 10, new Date('2016-1-4'));
-        p.buy('aapl', 20, new Date('2016-5-2'));
-        p.buy('aapl', 10, new Date('2016-6-2'));
+        p.buy('aapl', 10, new Date('2016-1-4'), function() {
+            console.log('1 ' + p.getCash());
+        });
+        p.buy('aapl', 20, new Date('2016-5-2'), function() {
+            console.log('2 ' + p.getCash());
+        });
+        p.buy('aapl', 10, new Date('2016-6-2'), function() {
+            console.log('3 ' + p.getCash());
+        });
         
-        p.sell('aapl', 15, new Date('2016-7-25'));
+        p.sell('aapl', 15, new Date('2016-7-25'), function() {
+            console.log('4 ' + p.getCash());
+        });
         
         
-        Util.wait(function() {
-            console.log(p.getCash());
-        }, 1);
+        // Util.wait(function() {
+        //     console.log(p.getCash());
+        //     assert.equal(p.getCash(), 7556.6);
+        //     done();
+        // }, 1);
     });
 });

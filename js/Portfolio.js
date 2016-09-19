@@ -30,16 +30,22 @@ class Portfolio {
     
     
     
-    buy(ticker, amount, date = Util.getLastValidDate()) {
+    buy(ticker, amount, date, callback = function() {}) {
+        if (typeof date === 'function') {
+            callback = date;
+            date = Util.getLastValidDate();
+        }
+        
         for (var i = 0; this.stockTrackers[i]; i++) {
             if (this.stockTrackers[i].getTicker() === ticker) {
-                this.stockTrackers[i].buy(amount, date, (function(self) {
+                this.stockTrackers[i].buy(amount, date, (function(self, callback) {
                     return function(cost) {
                         // deduct cost from cash
                         self.cash -= cost;
+                        callback();
                     };
-                }(this)));
-                return;
+                }(this, callback)));
+                return; // exit once bought stock
             }
         }
         
@@ -50,15 +56,21 @@ class Portfolio {
     
     
     
-    sell(ticker, amount, date = Util.getLastValidDate()) {
+    sell(ticker, amount, date, callback = function() {}) {
+        if (typeof date === 'function') {
+            callback = date;
+            date = Util.getLastValidDate();
+        }
+        
         for (var i = 0; this.stockTrackers[i]; i++) {
             if (this.stockTrackers[i].getTicker() === ticker) {
-                this.stockTrackers[i].sell(amount, date, (function(self) {
+                this.stockTrackers[i].sell(amount, date, (function(self, callback) {
                     return function(profit, money) {
                         // add money to cash
                         self.cash += money;
+                        callback();
                     };
-                }(this)));
+                }(this, callback)));
             }
         }
     }
@@ -68,6 +80,7 @@ class Portfolio {
     addStockTracker(stockTracker) {
         if (stockTracker instanceof multipleTimeslotStockTracker) {
             this.stockTrackers.push(stockTracker);
+            console.log(stockTracker);
         }
     }
     

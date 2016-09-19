@@ -66,7 +66,11 @@ function another() {
 }
 
 
+function test() {
+    Util.getStockOHLCAndTimestamp(new Date('2016-1-4'), new Date('2016-1-9'), 'aapl')
+}
+
 
 // main();
-// test();
+test();
 // another();
