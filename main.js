@@ -3,13 +3,14 @@
 /* global Portfolio */
 /* global Util */
 /* global PreUtil */
+/* global MAPattern */
 
 
 
 PreUtil.loadAll();
 
 
-function main() {
+function uno() {
     var portfolio = new Portfolio(10000);
     
     var stock = new StockTracker(1, 'AAPL', new Date('2016-01-01'));
@@ -35,7 +36,7 @@ function main() {
 
 
 
-function another() {
+function dos() {
     var stock = new multipleTimeslotStockTracker('AAPL');
     
     stock.buy(5, new Date('2016-1-4'), function(price) {
@@ -66,11 +67,21 @@ function another() {
 }
 
 
-function test() {
+function tres() {
     Util.getStockOHLCAndTimestamp(new Date('2016-1-4'), new Date('2016-1-9'), 'aapl')
 }
 
 
-// main();
-test();
-// another();
+function cuatro() {
+    var sma30 = new MAPattern(50, 0.1);
+    
+    sma30.apply('aapl', new Date('2016-6-27'), function(decider) {
+        console.log(decider);
+    });
+}
+
+
+// uno();
+// dos();
+// tres();
+cuatro();

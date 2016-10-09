@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Stock Tracker</title>
-        
-        <script>
-            // redirt to http protocol because using http scripts on this page
-            if (window.location.protocol === "https:") window.location.href = "http:" + window.location.href.substring(window.location.protocol.length);
-        </script>
-    </head>
-    <body>
-        
-        <div id="graph"></div>
-        
-        <script src="http://code.highcharts.com/adapters/standalone-framework.js"></script>
-        <script src="http://code.highcharts.com/stock/highstock.js"></script>
-        <script src="js/Portfolio.js"></script>
-        <script src="js/timeslotStockTracker.js"></script>
-        <script src="js/Util.js"></script>
-        <script src="js/Pattern.js"></script>
-        <script src="main.js"></script>
-    </body>
+<head>
+    <title>Stock Tracker</title>
+
+    <script>
+        // redirt to http protocol because using http scripts on this page
+        if (window.location.protocol === "https:") window.location.href = "http:" + window.location.href.substring(window.location.protocol.length);
+    </script>
+</head>
+
+<body>
+    <div id="graph"></div>
+
+    <script src="http://code.highcharts.com/adapters/standalone-framework.js"></script>
+    <script src="http://code.highcharts.com/stock/highstock.js"></script>
+    <script src="js/Portfolio.js"></script>
+    <script src="js/timeslotStockTracker.js"></script>
+    <script src="js/Util.js"></script>
+    <script src="js/DayByDayPattern.js"></script>
+    <script src="js/MAPattern.js"></script>
+    <script src="main.js"></script>
+</body>
 </html>

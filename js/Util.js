@@ -4,12 +4,21 @@
 
 
 class Util {
-    static TYPES() {
+    static tickerTypes() {
         return {
-            OPEN: 'Open',
-            HIGH: 'High',
-            LOW: 'Low',
-            CLOSE: 'Close'
+            open: 'Open',
+            high: 'High',
+            low: 'Low',
+            close: 'Close'
+        };
+    }
+    
+    
+    static deciderTypes() {
+        return {
+            buy: Symbol('buy'),
+            sell: Symbol('sell'),
+            hold: Symbol('hold')
         };
     }
     
@@ -30,7 +39,7 @@ class Util {
 
 
 
-    static getStockPriceFromTimeRange(begin, end, ticker, type, callback = function() {}) {
+    static getStockPriceDatabase(begin, end, ticker, type, callback = function() {}) {
         // http://stackoverflow.com/questions/885456/stock-ticker-symbol-lookup-api
         // http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=toyota&region=1&lang=en&callback=main
         jsonp('http://query.yahooapis.com/v1/public/yql?' +
@@ -45,7 +54,9 @@ class Util {
             "&env=http%3A%2F%2Fdatatables.org%2Falltables.env&format=json",
             function(resp) {
                 // console.log(resp);
-                if (!resp.query.results) throw new Error('No entry found for date range ' + begin.toDateString() + ' to ' + end.toDateString());
+                if (!resp.query || !resp.query.results) {
+                    throw new Error('No entry found for date range ' + begin.toDateString() + ' to ' + end.toDateString());
+                }
                 if (Array.isArray(resp.query.results.quote)) {
                     var quotes = resp.query.results.quote;
 
@@ -79,9 +90,32 @@ class Util {
     }
     
     
+    static getStockPriceFromTimeRange(begin, end, ticker, type, callback = function() {}) {
+        if (typeof type === 'function') {
+            callback = type;
+            type = this.tickerTypes().close;
+        }
+        
+        this.getStockPriceAndTimestamp(begin, end, ticker, type, (function(callback) {
+            return function(prices) {
+                var data = [];
+                for (var i = 0; i < prices.length; i++) {
+                    data.push(prices[i][1]);
+                }
+                
+                callback(data);
+            };
+        }(callback)));
+    }
     
-    static getStockPriceAndTimeRange(begin, end, ticker, type, callback = function() {}) {
-        this.getStockPriceFromTimeRange(begin, end, ticker, type, function(data, rawResp) {
+    
+    
+    static getStockPriceAndTimestamp(begin, end, ticker, type, callback = function() {}) {
+        if (typeof type === 'function') {
+            callback = type;
+            type = this.tickerTypes().close;
+        }
+        this.getStockPriceDatabase(begin, end, ticker, type, function(data, rawResp) {
             // array of 2 elements within array
             var newData = [];
             for (var i = 0; i < data.length; i++) {
@@ -97,13 +131,12 @@ class Util {
     
     static getStockPriceFromTimestamp(time, ticker, type, callback = function() {}) {
         if (this.isMarketClosed(time)) throw new Error('Market is not open on ' + time.toDateString());
-        // if no type, shift arguments and default type to 'close'
         if (typeof type === 'function') {
             callback = type;
-            type = this.TYPES().CLOSE;
+            type = this.tickerTypes().close;
         }
         
-        this.getStockPriceFromTimeRange(time, time, ticker, type, function(data) {
+        this.getStockPriceDatabase(this.getLastValidDate(this.subtractDate(time, 1)), time, ticker, type, function(data) {
             // return the price of the stock
             callback(data[0]);
         });
@@ -114,25 +147,25 @@ class Util {
     static getStockOHLCFromTimeRange(begin, end, ticker, callback = function() {}) {
         var ohlcData = [];
         
-        this.getStockPriceFromTimeRange(begin, end, ticker, this.TYPES().OPEN, function(data) {
+        this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().open, function(data) {
             console.log(data);
             ohlcData.push(data);
             
             if (ohlcData.length === 4) allDone();
         });
-        this.getStockPriceFromTimeRange(begin, end, ticker, this.TYPES().HIGH, function(data) {
+        this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().high, function(data) {
             console.log(data);
             ohlcData.push(data);
             
             if (ohlcData.length === 4) allDone();
         });
-        this.getStockPriceFromTimeRange(begin, end, ticker, this.TYPES().LOW, function(data) {
+        this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().low, function(data) {
             console.log(data);
             ohlcData.push(data);
             
             if (ohlcData.length === 4) allDone();
         });
-        this.getStockPriceFromTimeRange(begin, end, ticker, this.TYPES().CLOSE, function(data) {
+        this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().close, function(data) {
             console.log(data);
             ohlcData.push(data);
             
@@ -156,7 +189,7 @@ class Util {
     
     
     static drawChart(startDate, endDate, ticker, type) {
-        this.getStockPriceAndTimeRange(startDate, endDate, ticker, type, function(data) {
+        this.getStockPriceAndTimestamp(startDate, endDate, ticker, type, function(data) {
             // console.log(data);
             
             
@@ -200,19 +233,25 @@ class Util {
 
     static isMarketClosed(date) {
         // saturday (6) or sunday (0)
-        return date.getDate() % 6 === 0;
+        return date.getDay() % 6 === 0;
     }
     
     
     
-    static getLastValidDate(startingDate = (new Date())) {
+    static getLastValidDate(startingDate = new Date()) {
+        // copy startingDate
+        var yesterday = new Date(startingDate.getTime());
         // keep on going back a day until found an open date
-        var yesterday = new Date(startingDate.setDate(startingDate.getDate() - 1));
         while(this.isMarketClosed(yesterday)) {
-            yesterday = new Date(yesterday.setDate(yesterday.getDate() - 1));
+            yesterday = Util.subtractDate(yesterday, 1);
         }
         
         return yesterday;
+    }
+    
+    
+    static today() {
+        return this.getLastValidDate();
     }
     
     
@@ -239,6 +278,19 @@ class Util {
     
     static printStackTrace() {
         console.log((new Error()).stack);
+    }
+    
+    
+    static addDate(date, days) {
+        // cannot set date directly
+        var refDate = new Date(date.getTime());
+        return new Date(refDate.setDate(date.getDate() + days));
+    }
+    
+    static subtractDate(date, days) {
+        // cannot set date directly
+        var refDate = new Date(date.getTime());
+        return new Date(refDate.setDate(date.getDate() - days));
     }
 }
 
@@ -303,5 +355,64 @@ class PreUtil {
                 }
             };
         }(this)), 20);
+    }
+}
+
+
+
+
+class OHLC {
+    constructor(ohlc) {
+        this.open = ohlc[0];
+        this.high = ohlc[1];
+        this.low = ohlc[2];
+        this.close = ohlc[3];
+    }
+    
+    
+    
+    getRawOHLC() {
+        return [this.open, this.high, this.low, this.close];
+    }
+    
+    
+    
+    getBodyLength() {
+        return Math.abs(this.open - this.close);
+    }
+    
+    
+    
+    // is body white (true = white; false = black)
+    isUpDay() {
+        return this.open < this.close;
+    }
+    
+    
+    
+    getTopShadowLength() {
+        if (this.high === this.open || this.high === this.close) {
+            return 0;
+        }
+        
+        if (this.isUpDay()) {
+            return this.high - this.close;
+        } else {
+            return this.high - this.open;
+        }
+    }
+    
+    
+    
+    getBotttomShadowLength() {
+        if (this.low === this.open || this.low === this.close) {
+            return 0;
+        }
+        
+        if (this.isUpDay()) {
+            return this.open - this.low;
+        } else {
+            return this.close - this.low;
+        }
     }
 }
