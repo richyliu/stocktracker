@@ -42,51 +42,45 @@ class Util {
     static getStockPriceDatabase(begin, end, ticker, type, callback = function() {}) {
         // http://stackoverflow.com/questions/885456/stock-ticker-symbol-lookup-api
         // http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=toyota&region=1&lang=en&callback=main
-        jsonp('http://query.yahooapis.com/v1/public/yql?' +
-            'q=' +
-            encodeURIComponent('select * from yahoo.finance.historicaldata where symbol in ("' +
-                ticker +
-                '") and endDate = "' +
-                end.toISOString().slice(0, 10) +
-                '" and startDate = "' +
-                begin.toISOString().slice(0, 10) +
-                '"') +
-            "&env=http%3A%2F%2Fdatatables.org%2Falltables.env&format=json",
-            function(resp) {
-                // console.log(resp);
-                if (!resp.query || !resp.query.results) {
-                    throw new Error('No entry found for date range ' + begin.toDateString() + ' to ' + end.toDateString());
-                }
-                if (Array.isArray(resp.query.results.quote)) {
-                    var quotes = resp.query.results.quote;
-
-                    var data = [];
-                    for (var i = 0; i < quotes.length; i++) {
-                        // round numbers for consistency
-                        data.push(Util.round(quotes[i][type]));
-                    }
-                    
-                    callback(data, resp);
-                } else {
-                    // round numbers for consistency
-                    callback([Util.round(resp.query.results.quote[type])], resp);
-                }
+        var url = 'http://query.yahooapis.com/v1/public/yql?q=' +
+            encodeURIComponent('select * from yahoo.finance.historicaldata where symbol in ("'
+                + ticker + '") and endDate = "'
+                + end.toISOString().slice(0, 10) + '" and startDate = "'
+                + begin.toISOString().slice(0, 10) + '"') +
+            '&env=http%3A%2F%2Fdatatables.org%2Falltables.env&format=json';
+        
+        
+        var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+        window[callbackName] = function(resp) {
+            delete window[callbackName];
+            document.body.removeChild(script);
+        
+            // console.log(resp);
+            if (!resp.query || !resp.query.results) {
+                console.log(resp);
+                throw new Error('No entry found for date range ' + begin.toDateString() + ' to ' + end.toDateString());
             }
-        );
-        
-        
-        function jsonp(url, callback = function() {}) {
-            var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-            window[callbackName] = function(data) {
-                delete window[callbackName];
-                document.body.removeChild(script);
-                callback(data);
-            };
-    
-            var script = document.createElement('script');
-            script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
-            document.body.appendChild(script);
-        }
+            if (Array.isArray(resp.query.results.quote)) {
+                var quotes = resp.query.results.quote;
+
+                var data = [];
+                for (var i = 0; i < quotes.length; i++) {
+                    // round numbers for consistency
+                    data.push(Util.round(quotes[i][type]));
+                }
+                
+                callback(data, resp);
+            } else {
+                // round numbers for consistency
+                callback([Util.round(resp.query.results.quote[type])], resp);
+            }
+        };
+
+
+        var script = document.createElement('script');
+        console.log(url + '&callback=' + callbackName);
+        script.src = url + '&callback=' + callbackName;
+        document.body.appendChild(script);
     }
     
     

@@ -75,7 +75,7 @@ function tres() {
 function cuatro() {
     var sma30 = new MAPattern(50, 0.1);
     
-    sma30.apply('aapl', new Date('2016-6-27'), function(decider) {
+    sma30.apply('aapl', new Date('2016-7-18'), function(decider) {
         console.log(decider);
     });
 }
