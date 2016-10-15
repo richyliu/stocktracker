@@ -11,8 +11,8 @@ class MAPattern {
         this.patternType = patternType || this.types().simple;
         this.type = type || Util.tickerTypes().close;
     }
-    
-    
+
+
     types() {
         return {
             'simple': Symbol('simple'),
@@ -20,29 +20,43 @@ class MAPattern {
             'squareroot': Symbol('squareroot')
         };
     }
-    
-    
+
+
     // should I buy or sell this stock at this time?
-    apply(ticker, time, callback) {
-        Util.getStockPriceFromTimeRange(Util.getLastValidDate(Util.subtractDate(time, this.numDays)), time, ticker, function(data) {
-            // calculate mvoing average
-            var total = 0;
-            for (var i = 0; i < data.length; i++) {
-                total += data[i];
-            }
-            var average = Util.round(total / data.length);
-            var price = data[0];
-            
-            console.log(average);
-            console.log(price);
-            // compare moving average to current price
-            if (price < average) {
-                // sell
-                callback(Util.deciderTypes().sell);
-            } else if (price > average) {
-                // buy
-                callback(Util.deciderTypes().buy);
-            }
+    apply(ticker, time) {
+        return new Promise((resolve, reject) => {
+            Util.getStockPriceFromTimeRange(Util.getLastValidDate(Util.subtractDate(time, this.numDays + 5)), time, ticker).then((data) => {
+                // flip array so first is earlier days and last is later days
+                data.reverse();
+
+                // calculate moving average for past 5 days
+                const extraDayLength = 5;
+
+
+                for (var i = 0; i < extraDayLength; i++) {
+                    let total = 0;
+                    let times = 0;
+
+                    for (var j = i; j < data.length - (extraDayLength - i); j++) {
+                        total += data[j];
+                        times++
+                    }
+                    console.log(times);
+                    var average = Util.round(total / data.length);
+                    var price = data[i];
+
+                    console.log(average);
+                    console.log(price);
+                    // compare moving average to current price
+                    if (price < average) {
+                        // sell
+                        resolve(Util.deciderTypes().sell);
+                    } else if (price > average) {
+                        // buy
+                        resolve(Util.deciderTypes().buy);
+                    }
+                }
+            });
         });
     }
 }
