@@ -68,7 +68,7 @@ function dos() {
 
 
 function tres() {
-    Util.getStockOHLCAndTimestamp(new Date('2016-1-4'), new Date('2016-1-9'), 'aapl')
+    Util.getStockOHLCAndTimestamp(new Date('2016-1-4'), new Date('2016-1-9'), 'aapl');
 }
 
 

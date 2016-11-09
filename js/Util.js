@@ -46,10 +46,10 @@ class Util {
         // http://stackoverflow.com/questions/885456/stock-ticker-symbol-lookup-api
         // http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=toyota&region=1&lang=en&callback=main
         var url = 'http://query.yahooapis.com/v1/public/yql?q=' +
-            encodeURIComponent('select * from yahoo.finance.historicaldata where symbol in ("'
-                + ticker + '") and endDate = "'
-                + end.toISOString().slice(0, 10) + '" and startDate = "'
-                + begin.toISOString().slice(0, 10) + '"') +
+            encodeURIComponent('select * from yahoo.finance.historicaldata where symbol in ("' +
+                ticker + '") and endDate = "' +
+                end.toISOString().slice(0, 10) + '" and startDate = "' +
+                begin.toISOString().slice(0, 10) + '"') +
             '&env=http%3A%2F%2Fdatatables.org%2Falltables.env&format=json';
 
         var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());

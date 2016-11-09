@@ -39,12 +39,12 @@ class MAPattern {
 
                     for (var j = i; j < data.length - (extraDayLength - i); j++) {
                         total += data[j];
-                        times++
+                        times++;
                     }
                     console.log(times);
                     var average = Util.round(total / data.length);
                     var price = data[i];
-
+                    
                     console.log(average);
                     console.log(price);
                     // compare moving average to current price
