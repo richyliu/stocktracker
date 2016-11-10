@@ -1,5 +1,6 @@
 /* global multipleTimeslotStockTracker */
 /* global Util */
+/* jshint -W083 */
 
 
 
@@ -32,9 +33,9 @@ class Portfolio {
 
     buy(ticker, amount, date = Util.getLastValidDate()) {
         return new Promise((resolve, reject) => {
-            for (var i = 0; this.stockTrackers[i]; i++) {
-                if (this.stockTrackers[i].getTicker() === ticker) {
-                    this.stockTrackers[i].buy(amount, date).then((self, resolve) => {
+            for (let stockTracker of this.stockTrackers) {
+                if (stockTracker.getTicker() === ticker) {
+                    stockTracker.buy(amount, date).then((self, resolve) => {
                         return (cost) => {
                             // deduct cost from cash
                             self.cash -= cost;
@@ -55,9 +56,9 @@ class Portfolio {
 
     sell(ticker, amount, date = Util.getLastValidDate()) {
         return new Promise((resolve, reject) => {
-            for (var i = 0; this.stockTrackers[i]; i++) {
-                if (this.stockTrackers[i].getTicker() === ticker) {
-                    this.stockTrackers[i].sell(amount, date).then((self, callback) => {
+            for (let stockTracker of this.stockTrackers) {
+                if (stockTracker.getTicker() === ticker) {
+                    stockTracker.sell(amount, date).then((self, callback) => {
                         return (profit, money) => {
                             // add money to cash
                             self.cash += money;
@@ -82,11 +83,11 @@ class Portfolio {
 
 
     getTotalStockMoney() {
-        var totalStockMoney = 0;
-        var totalStockMoneyCalculated = new Array(this.totalStock.length).fill(false);
+        let totalStockMoney = 0;
+        let totalStockMoneyCalculated = new Array(this.totalStock.length).fill(false);
 
-        for (var i = 0; i < this.stockTrackers.length; i++) {
-            this.stockTrackers[i].getTotalMoney().then((money) => {
+        for (let stockTracker of this.stockTrackers) {
+            stockTracker.getTotalMoney().then((money) => {
                 totalStockMoney += money;
                 totalStockMoneyCalculated[i] = true;
 
@@ -100,9 +101,9 @@ class Portfolio {
 
 
     getTotalStockProfit() {
-        var totalStockProfit = 0;
-        for (var i = 0; i < this.stockTrackers.length; i++) {
-            this.stockTrackers[i].getTotalProfit().then((money) => {
+        let totalStockProfit = 0;
+        for (let stockTracker of this.stockTrackers) {
+            stockTracker.getTotalProfit().then((money) => {
                 totalStockProfit += money;
             });
         }

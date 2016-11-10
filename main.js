@@ -11,9 +11,9 @@ PreUtil.loadAll();
 
 
 function uno() {
-    var portfolio = new Portfolio(10000);
+    let portfolio = new Portfolio(10000);
 
-    var stock = new StockTracker(1, 'AAPL', new Date('2016-01-01'));
+    let stock = new StockTracker(1, 'AAPL', new Date('2016-01-01'));
     stock.getStockAmountEarned((total) => {
         console.log('amount earned ' + total);
     });
@@ -37,7 +37,7 @@ function uno() {
 
 
 function dos() {
-    var stock = new multipleTimeslotStockTracker('AAPL');
+    let stock = new multipleTimeslotStockTracker('AAPL');
 
     stock.buy(5, new Date('2016-1-4')).then((price) => {
         console.log('Paying: $' + price + ' for 5 AAPL stocks on 1/4/2016');
@@ -73,7 +73,7 @@ function tres() {
 
 
 function cuatro() {
-    var sma30 = new MAPattern(50, 0.1);
+    let sma30 = new MAPattern(50, 0.1);
 
     sma30.apply('aapl', new Date('2016-7-18')).then((decider) => {
         console.log(decider);

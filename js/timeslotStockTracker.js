@@ -1,4 +1,5 @@
 /* global Util */
+/* jshint -W083 */
 
 
 
@@ -65,23 +66,23 @@ class multipleTimeslotStockTracker {
 
     getTotalMoney(date = Util.getLastValidDate()) {
         return new Promise((resolve, reject) => {
-            var totalMoney = 0;
-            var totalMoneyCalculated = new Array(this.totalStock.length).fill(false);
+            let totalMoney = 0;
+            let totalMoneyCalculated = new Array(this.totalStock.length).fill(false);
 
-            for (var i = 0; i < this.totalStock.length; i++) {
-                Util.getStockPriceFromTimestamp(date, this.ticker).then((i, self, resolve) => {
+            for (let curStock of this.totalStock) {
+                Util.getStockPriceFromTimestamp(date, this.ticker).then((i, curStock, resolve) => {
                     return (price) => {
-                        totalMoney += price * self.totalStock[i].getAmount();
+                        totalMoney += price * curStock.getAmount();
                         totalMoneyCalculated[i] = true;
 
-                        for (var j = 0; j < totalMoneyCalculated.length; j++) {
+                        for (let j = 0; j < totalMoneyCalculated.length; j++) {
                             if (!totalMoneyCalculated[j]) return;
                         }
 
                         // all stock price calculated
                         resolve(Util.round(totalMoney));
                     };
-                }(i, this, resolve));
+                }(i, curStock, resolve));
             }
         });
     }
@@ -92,10 +93,10 @@ class multipleTimeslotStockTracker {
         return new Promise((resolve, reject) => {
             this.getTotalMoney().then((self, resolve) => {
                 return (totalMoney) => {
-                    var totalPrevMoney = 0;
+                    let totalPrevMoney = 0;
 
-                    for (var i = 0; i < self.totalStock.length; i++) {
-                        totalPrevMoney += self.totalStock[i].getPrice() * self.totalStock[i].getAmount();
+                    for (let curStock of self.totalStock) {
+                        totalPrevMoney += curStock.getPrice() * curStock.getAmount();
                     }
 
                     resolve(Util.round(totalMoney - totalPrevMoney));
@@ -121,48 +122,48 @@ class multipleTimeslotStockTracker {
 
     sell(amount, date = Util.getLastValidDate()) {
         return new Promise((resolve, reject) => {
-            var amountNeedToSell = amount;
-            var soldStocks = [];
+            let amountNeedToSell = amount;
+            let soldStocks = [];
 
-            for (var i = 0; i < this.totalStock.length; i++) {
-                if (!this.totalStock[i].amount) {
+            for (let curStock of this.totalStock) {
+                if (!curStock.amount) {
                     continue;
                 }
-                if (amountNeedToSell < this.totalStock[i].getAmount()) {
+                if (amountNeedToSell < curStock.getAmount()) {
                     // subtract amountNeedToSell from the first totalStock
-                    var swap = new singleTimeslotStockTracker(
-                        this.totalStock[i].getAmount() - amountNeedToSell,
+                    let swap = new singleTimeslotStockTracker(
+                        curStock.getAmount() - amountNeedToSell,
                         this.ticker,
-                        this.totalStock[i].getDate()
+                        curStock.getDate()
                     );
-                    this.totalStock[i] = swap;
+                    curStock = swap;
 
-                    soldStocks.push(new singleTimeslotStockTracker(amountNeedToSell, this.ticker, this.totalStock[i].getDate()));
+                    soldStocks.push(new singleTimeslotStockTracker(amountNeedToSell, this.ticker, curStock.getDate()));
                     // sold all that needs to be sold
                     amountNeedToSell = 0;
                     break;
                 }
                 // if need more than one singeTimeslotStockTracker
-                soldStocks.push(new singleTimeslotStockTracker(this.totalStock[i].getAmount(), this.ticker, this.totalStock[i].getDate()));
+                soldStocks.push(new singleTimeslotStockTracker(curStock.getAmount(), this.ticker, curStock.getDate()));
                 // deduct amountNeedToSell from amount already sold
-                amountNeedToSell -= this.totalStock[i].getAmount();
+                amountNeedToSell -= curStock.getAmount();
                 // proceed to next totalStock
-                this.totalStock[i] = null;
+                curStock = null;
             }
             if (amountNeedToSell > 0) {
                 throw new Error('Not enough existing stocks to make sale!');
             }
 
 
-            var totalCurrent = 0;
-            var totalPast = 0;
-            var soldStocksCalculated = new Array(soldStocks.length).fill(false);
-            var self = this;
+            let totalCurrent = 0;
+            let totalPast = 0;
+            let soldStocksCalculated = new Array(soldStocks.length).fill(false);
+            let self = this;
 
             // loop through all soldStocks to calculate profit
-            for (var i = 0; i < soldStocks.length; i++) {
+            for (let soldStock of soldStocks) {
                 // wrap in iife in order for soldStock[i].getAmount() to be used
-                Util.getStockPriceFromTimestamp(soldStocks[i].getDate(), this.ticker).then((currentSoldStockAmount, i, resolve) => {
+                Util.getStockPriceFromTimestamp(soldStock.getDate(), this.ticker).then((currentSoldStockAmount, i, resolve) => {
                     return (pastPrice) => {
                         // use self bc "this" referes to the function() {} scope
                         Util.getStockPriceFromTimestamp(date, self.ticker).then((currentSoldStockAmount, i, resolve) => {
@@ -171,7 +172,7 @@ class multipleTimeslotStockTracker {
                                 totalPast += pastPrice * currentSoldStockAmount;
                                 soldStocksCalculated[i] = true;
 
-                                for (var j = 0; j < soldStocksCalculated.length; j++) {
+                                for (let j = 0; j < soldStocksCalculated.length; j++) {
                                     if (!soldStocksCalculated[j]) return;
                                 }
 
@@ -180,7 +181,7 @@ class multipleTimeslotStockTracker {
                             };
                         }(currentSoldStockAmount, i, resolve));
                     };
-                }(soldStocks[i].getAmount(), i, resolve));
+                }(soldStock.getAmount(), i, resolve));
             }
         });
     }

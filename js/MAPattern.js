@@ -33,17 +33,17 @@ class MAPattern {
                 const extraDayLength = 5;
 
 
-                for (var i = 0; i < extraDayLength; i++) {
+                for (let i = 0; i < extraDayLength; i++) {
                     let total = 0;
                     let times = 0;
 
-                    for (var j = i; j < data.length - (extraDayLength - i); j++) {
+                    for (let j = i; j < data.length - (extraDayLength - i); j++) {
                         total += data[j];
                         times++;
                     }
                     console.log(times);
-                    var average = Util.round(total / data.length);
-                    var price = data[i];
+                    let average = Util.round(total / data.length);
+                    let price = data[i];
                     
                     console.log(average);
                     console.log(price);

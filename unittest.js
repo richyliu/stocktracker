@@ -14,7 +14,7 @@ PreUtil.loadAll();
 // QUnit.skip('basic functions', () => {
 QUnit.module('basic functions', () => {
     QUnit.test('multipleTimeslotStockTracker buy', (assert) => {
-        var stock = new multipleTimeslotStockTracker('AAPL');
+        let stock = new multipleTimeslotStockTracker('AAPL');
 
         stock.buy(5, new Date('2016-1-4'));
         stock.buy(5, new Date('2016-5-2'));
@@ -25,9 +25,9 @@ QUnit.module('basic functions', () => {
 
 
     QUnit.test('multipleTimeslotStockTracker sell', (assert) => {
-        var done = assert.async();
+        let done = assert.async();
 
-        var stock = new multipleTimeslotStockTracker('AAPL');
+        let stock = new multipleTimeslotStockTracker('AAPL');
 
         stock.buy(5, new Date('2016-1-4'));
         stock.buy(9, new Date('2016-5-2'));
@@ -46,10 +46,10 @@ QUnit.module('basic functions', () => {
 
 
     QUnit.test('multipleTimeslotStockTracker getTotalMoney,getTotalProfit', (assert) => {
-        var done1 = assert.async();
-        var done2 = assert.async();
+        let done1 = assert.async();
+        let done2 = assert.async();
 
-        var stock = new multipleTimeslotStockTracker('AAPL');
+        let stock = new multipleTimeslotStockTracker('AAPL');
 
         stock.buy(5, new Date('2016-1-4'));
         stock.buy(9, new Date('2016-5-2'));
@@ -72,7 +72,7 @@ QUnit.module('basic functions', () => {
 
 
     QUnit.test('singeTimeslotStockTracker', (assert) => {
-        var s = new singleTimeslotStockTracker(10, 'aapl', new Date('2016-1-4'));
+        let s = new singleTimeslotStockTracker(10, 'aapl', new Date('2016-1-4'));
 
         assert.equal(JSON.stringify(s.getDate()), '\"2016-01-04T08:00:00.000Z\"');
         assert.equal(s.getAmount(), 10);
@@ -93,9 +93,9 @@ QUnit.module('basic functions', () => {
 
 QUnit.module('Portfolio', () => {
     QUnit.test('buy', (assert) => {
-        var done = assert.async();
+        let done = assert.async();
 
-        var p = new Portfolio(10000);
+        let p = new Portfolio(10000);
 
         p.buy('aapl', 10, new Date('2016-1-4')).then(() => {
             console.log('1 ' + p.getCash());

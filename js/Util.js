@@ -28,11 +28,11 @@ class Util {
     static getTickerFromName(stockName) {
         return new Promise((resolve, reject) => {
             PreUtil.runOnceTickerCsvLoaded().then(((resolve) => {
-                var allCsv = PreUtil.getTickerCsv();
+                let allCsv = PreUtil.getTickerCsv();
 
-                for (var i = 0; i < allCsv.length; i++) {
-                    if (allCsv[i][1].toLowerCase().indexOf(stockName.toLowerCase()) > -1) {
-                        resolve(allCsv[i]);
+                for (let curCsv of allCsv) {
+                    if (curCsv[1].toLowerCase().indexOf(stockName.toLowerCase()) > -1) {
+                        resolve(curCsv);
                     }
                 }
             }(resolve)));
@@ -45,16 +45,16 @@ class Util {
     static getStockPriceDatabase(begin, end, ticker, type = this.tickerTypes().close) {
         // http://stackoverflow.com/questions/885456/stock-ticker-symbol-lookup-api
         // http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=toyota&region=1&lang=en&callback=main
-        var url = 'http://query.yahooapis.com/v1/public/yql?q=' +
+        let url = 'http://query.yahooapis.com/v1/public/yql?q=' +
             encodeURIComponent('select * from yahoo.finance.historicaldata where symbol in ("' +
                 ticker + '") and endDate = "' +
                 end.toISOString().slice(0, 10) + '" and startDate = "' +
                 begin.toISOString().slice(0, 10) + '"') +
             '&env=http%3A%2F%2Fdatatables.org%2Falltables.env&format=json';
 
-        var callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+        let callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
 
-        var script = document.createElement('script');
+        let script = document.createElement('script');
         script.src = url + '&callback=' + callbackName;
         document.body.appendChild(script);
 
@@ -70,12 +70,12 @@ class Util {
                     throw new Error('No entry found for date range ' + begin.toDateString() + ' to ' + end.toDateString());
                 }
                 if (Array.isArray(resp.query.results.quote)) {
-                    var quotes = resp.query.results.quote;
+                    let quotes = resp.query.results.quote;
 
-                    var data = [];
-                    for (var i = 0; i < quotes.length; i++) {
+                    let data = [];
+                    for (let quote of quotes) {
                         // round numbers for consistency
-                        data.push(Util.round(quotes[i][type]));
+                        data.push(Util.round(quote[type]));
                     }
 
                     resolve(data, resp);
@@ -91,9 +91,9 @@ class Util {
     static getStockPriceFromTimeRange(begin, end, ticker, type = this.tickerTypes().close) {
         return new Promise((resolve, reject) => {
             this.getStockPriceAndTimestamp(begin, end, ticker, type).then((prices) => {
-                var data = [];
-                for (var i = 0; i < prices.length; i++) {
-                    data.push(prices[i][1]);
+                let data = [];
+                for (let price of prices) {
+                    data.push(price[1]);
                 }
 
                 resolve(data);
@@ -107,10 +107,10 @@ class Util {
         return new Promise((resolve, reject) => {
             this.getStockPriceDatabase(begin, end, ticker, type).then((data, rawResp) => {
                 // array of 2 elements within array
-                var newData = [];
-                for (var i = 0; i < data.length; i++) {
+                let newData = [];
+                for (let curData of data) {
                     // element 0 is the timestamp, and element 1 is the data
-                    newData.push([new Date(rawResp.query.results.quote[i].Date).getTime(), parseFloat(data[i])]);
+                    newData.push([new Date(rawResp.query.results.quote[i].Date).getTime(), parseFloat(curData)]);
                 }
 
                 resolve(newData.reverse());
@@ -135,7 +135,7 @@ class Util {
 
     static getStockOHLCFromTimeRange(begin, end, ticker) {
         return new Promise((resolve, reject) => {
-            var ohlcData = [];
+            let ohlcData = [];
 
             this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().open).then((data) => {
                 console.log(data);
@@ -165,10 +165,10 @@ class Util {
 
             function allDone() {
                 console.log(ohlcData);
-                var ohlc = [];
+                let ohlc = [];
 
                 // loop through all data and combine together
-                for (var i = 0; i < ohlcData[0].length; i++) {
+                for (let i = 0; i < ohlcData[0].length; i++) {
                     ohlc.push([ohlcData[0][i], ohlcData[1][i], ohlcData[2][i], ohlcData[3][i]]);
                 }
 
@@ -209,7 +209,7 @@ class Util {
 
     static XMLHttpRequest(url) {
         return new Promise((resolve, reject) => {
-            var request = new XMLHttpRequest();
+            let request = new XMLHttpRequest();
             request.open('GET', url, true);
 
             request.onload = () => {
@@ -235,7 +235,7 @@ class Util {
 
     static getLastValidDate(startingDate = new Date()) {
         // copy startingDate
-        var yesterday = new Date(startingDate.getTime());
+        let yesterday = new Date(startingDate.getTime());
         // keep on going back a day until found an open date
         while(this.isMarketClosed(yesterday)) {
             yesterday = Util.subtractDate(yesterday, 1);
@@ -252,7 +252,7 @@ class Util {
 
 
     static sleep(miliseconds) {
-         var currentTime = new Date().getTime();
+         let currentTime = new Date().getTime();
 
          while (currentTime + miliseconds >= new Date().getTime()) {}
     }
@@ -278,13 +278,13 @@ class Util {
 
     static addDate(date, days) {
         // cannot set date directly
-        var refDate = new Date(date.getTime());
+        let refDate = new Date(date.getTime());
         return new Date(refDate.setDate(date.getDate() + days));
     }
 
     static subtractDate(date, days) {
         // cannot set date directly
-        var refDate = new Date(date.getTime());
+        let refDate = new Date(date.getTime());
         return new Date(refDate.setDate(date.getDate() - days));
     }
 }
@@ -306,20 +306,20 @@ class PreUtil {
 
 
         Util.XMLHttpRequest('data/all.csv').then((allText) => {
-            var allTextLines = allText.split(/\r\n|\n/);
-            var headers = allTextLines[0]
+            let allTextLines = allText.split(/\r\n|\n/);
+            let headers = allTextLines[0]
                     .slice(1, -2)           // remove leading " and trailing ",
                     .split('","');          // split with ","
-            var lines = [];
+            let lines = [];
 
-            for (var i = 1; i < allTextLines.length; i++) {
-                var data = allTextLines[i]
+            for (let i = 1; i < allTextLines.length; i++) {
+                let data = allTextLines[i]
                     .slice(1, -2)           // remove leading " and trailing ",
                     .split('","');          // split with ","
                 if (data.length === headers.length) {
 
-                    var tarr = [];
-                    for (var j = 0; j < headers.length; j++) {
+                    let tarr = [];
+                    for (let j = 0; j < headers.length; j++) {
                         tarr.push(data[j]);
                     }
                     lines.push(tarr);
@@ -341,7 +341,7 @@ class PreUtil {
 
     static runOnceTickerCsvLoaded() {
         return new Promise((resolve, reject) => {
-            var timer = setInterval(((self, resolve) => {
+            let timer = setInterval(((self, resolve) => {
                 return () => {
                     if (self.allTickerCsvLoaded) {
                         resolve();
