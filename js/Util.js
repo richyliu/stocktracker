@@ -30,11 +30,11 @@ class Util {
             PreUtil.runOnceTickerCsvLoaded().then(((resolve) => {
                 let allCsv = PreUtil.getTickerCsv();
 
-                for (let curCsv of allCsv) {
+                allCsv.forEach((curCsv) => {
                     if (curCsv[1].toLowerCase().indexOf(stockName.toLowerCase()) > -1) {
                         resolve(curCsv);
                     }
-                }
+                });
             }(resolve)));
         });
 
@@ -73,10 +73,10 @@ class Util {
                     let quotes = resp.query.results.quote;
 
                     let data = [];
-                    for (let quote of quotes) {
+                    quotes.forEach((quote) => {
                         // round numbers for consistency
                         data.push(Util.round(quote[type]));
-                    }
+                    });
 
                     resolve(data, resp);
                 } else {
@@ -92,9 +92,9 @@ class Util {
         return new Promise((resolve, reject) => {
             this.getStockPriceAndTimestamp(begin, end, ticker, type).then((prices) => {
                 let data = [];
-                for (let price of prices) {
+                prices.forEach((price) => {
                     data.push(price[1]);
-                }
+                });
 
                 resolve(data);
             });
@@ -108,10 +108,10 @@ class Util {
             this.getStockPriceDatabase(begin, end, ticker, type).then((data, rawResp) => {
                 // array of 2 elements within array
                 let newData = [];
-                for (let curData of data) {
+                data.forEach((curData) => {
                     // element 0 is the timestamp, and element 1 is the data
                     newData.push([new Date(rawResp.query.results.quote[i].Date).getTime(), parseFloat(curData)]);
-                }
+                });
 
                 resolve(newData.reverse());
             });
@@ -312,20 +312,18 @@ class PreUtil {
                     .split('","');          // split with ","
             let lines = [];
 
-            for (let i = 1; i < allTextLines.length; i++) {
-                let data = allTextLines[i]
+            allTextLines.forEach((textLine) => {
+                let data = textLine
                     .slice(1, -2)           // remove leading " and trailing ",
                     .split('","');          // split with ","
                 if (data.length === headers.length) {
-
                     let tarr = [];
-                    for (let j = 0; j < headers.length; j++) {
-                        tarr.push(data[j]);
-                    }
+                    data.forEach((curData) => {
+                        tarr.push(curData);
+                    });
                     lines.push(tarr);
-                } else {
                 }
-            }
+            });
             PreUtil.allCsv = lines;
             PreUtil.allTickerCsvLoaded = true;
         });

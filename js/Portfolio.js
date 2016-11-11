@@ -33,7 +33,7 @@ class Portfolio {
 
     buy(ticker, amount, date = Util.getLastValidDate()) {
         return new Promise((resolve, reject) => {
-            for (let stockTracker of this.stockTrackers) {
+            this.stockTrackers.forEach((stockTracker) => {
                 if (stockTracker.getTicker() === ticker) {
                     stockTracker.buy(amount, date).then((self, resolve) => {
                         return (cost) => {
@@ -44,7 +44,7 @@ class Portfolio {
                     }(this, resolve));
                     return; // exit once bought stock
                 }
-            }
+            });
 
             // create stocktracker if it doesn't exist
             this.addStockTracker(new multipleTimeslotStockTracker(ticker));
@@ -56,7 +56,7 @@ class Portfolio {
 
     sell(ticker, amount, date = Util.getLastValidDate()) {
         return new Promise((resolve, reject) => {
-            for (let stockTracker of this.stockTrackers) {
+            this.stockTrackers.forEach((stockTracker) => {
                 if (stockTracker.getTicker() === ticker) {
                     stockTracker.sell(amount, date).then((self, callback) => {
                         return (profit, money) => {
@@ -66,7 +66,7 @@ class Portfolio {
                         };
                     }(this, callback));
                 }
-            }
+            });
         });
     }
 
@@ -86,14 +86,14 @@ class Portfolio {
         let totalStockMoney = 0;
         let totalStockMoneyCalculated = new Array(this.totalStock.length).fill(false);
 
-        for (let stockTracker of this.stockTrackers) {
+        this.stockTrackers.forEach((stockTracker) => {
             stockTracker.getTotalMoney().then((money) => {
                 totalStockMoney += money;
                 totalStockMoneyCalculated[i] = true;
 
 
             });
-        }
+        });
 
         return totalStockMoney;
     }
@@ -102,11 +102,11 @@ class Portfolio {
 
     getTotalStockProfit() {
         let totalStockProfit = 0;
-        for (let stockTracker of this.stockTrackers) {
+        this.stockTrackers.forEach((stockTracker) => {
             stockTracker.getTotalProfit().then((money) => {
                 totalStockProfit += money;
             });
-        }
+        });
 
         return totalStockProfit;
     }

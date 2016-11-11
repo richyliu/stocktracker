@@ -69,7 +69,7 @@ class multipleTimeslotStockTracker {
             let totalMoney = 0;
             let totalMoneyCalculated = new Array(this.totalStock.length).fill(false);
 
-            for (let curStock of this.totalStock) {
+            this.totalStock.forEach((curStock) => {
                 Util.getStockPriceFromTimestamp(date, this.ticker).then((i, curStock, resolve) => {
                     return (price) => {
                         totalMoney += price * curStock.getAmount();
@@ -83,7 +83,7 @@ class multipleTimeslotStockTracker {
                         resolve(Util.round(totalMoney));
                     };
                 }(i, curStock, resolve));
-            }
+            });
         });
     }
 
@@ -95,9 +95,9 @@ class multipleTimeslotStockTracker {
                 return (totalMoney) => {
                     let totalPrevMoney = 0;
 
-                    for (let curStock of self.totalStock) {
+                    self.totalStock.forEach((curStock) => {
                         totalPrevMoney += curStock.getPrice() * curStock.getAmount();
-                    }
+                    });
 
                     resolve(Util.round(totalMoney - totalPrevMoney));
                 };
@@ -126,9 +126,8 @@ class multipleTimeslotStockTracker {
             let soldStocks = [];
 
             for (let curStock of this.totalStock) {
-                if (!curStock.amount) {
-                    continue;
-                }
+                if (!curStock.amount) continue;
+                
                 if (amountNeedToSell < curStock.getAmount()) {
                     // subtract amountNeedToSell from the first totalStock
                     let swap = new singleTimeslotStockTracker(
@@ -161,7 +160,7 @@ class multipleTimeslotStockTracker {
             let self = this;
 
             // loop through all soldStocks to calculate profit
-            for (let soldStock of soldStocks) {
+            soldStocks.forEach((soldStock) => {
                 // wrap in iife in order for soldStock[i].getAmount() to be used
                 Util.getStockPriceFromTimestamp(soldStock.getDate(), this.ticker).then((currentSoldStockAmount, i, resolve) => {
                     return (pastPrice) => {
@@ -182,7 +181,7 @@ class multipleTimeslotStockTracker {
                         }(currentSoldStockAmount, i, resolve));
                     };
                 }(soldStock.getAmount(), i, resolve));
-            }
+            });
         });
     }
 }
