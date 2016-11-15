@@ -25,7 +25,7 @@ class MAPattern {
     // should I buy or sell this stock at this time?
     apply(ticker, time) {
         return new Promise((resolve, reject) => {
-            Util.getStockPriceFromTimeRange(Util.getLastValidDate(Util.subtractDate(time, this.numDays + 5)), time, ticker).then((data) => {
+            Util.getStockPriceFromTimeRange(Util.getLastValidDate(Util.subtractDate(time, this.numDays + 5)), time, ticker).then(data => {
                 // flip array so first is earlier days and last is later days
                 data.reverse();
 

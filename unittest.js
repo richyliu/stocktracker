@@ -13,7 +13,7 @@ PreUtil.loadAll();
 
 // QUnit.skip('basic functions', () => {
 QUnit.module('basic functions', () => {
-    QUnit.test('multipleTimeslotStockTracker buy', (assert) => {
+    QUnit.test('multipleTimeslotStockTracker buy', assert => {
         let stock = new multipleTimeslotStockTracker('AAPL');
 
         stock.buy(5, new Date('2016-1-4'));
@@ -24,7 +24,7 @@ QUnit.module('basic functions', () => {
 
 
 
-    QUnit.test('multipleTimeslotStockTracker sell', (assert) => {
+    QUnit.test('multipleTimeslotStockTracker sell', assert => {
         let done = assert.async();
 
         let stock = new multipleTimeslotStockTracker('AAPL');
@@ -37,7 +37,7 @@ QUnit.module('basic functions', () => {
 
         assert.equal(JSON.stringify(stock.getTotal()), '[{"time":"2016-01-04T08:00:00.000Z","amount":2,"ticker":"AAPL"},{"time":"2016-05-02T07:00:00.000Z","amount":9,"ticker":"AAPL"},{"time":"2016-06-02T07:00:00.000Z","amount":3,"ticker":"AAPL"}]');
 
-        stock.sell(9, new Date('2016-9-9')).then((price) => {
+        stock.sell(9, new Date('2016-9-9')).then(price => {
             assert.equal(price, 61.99);
             done();
         });
@@ -45,7 +45,7 @@ QUnit.module('basic functions', () => {
 
 
 
-    QUnit.test('multipleTimeslotStockTracker getTotalMoney,getTotalProfit', (assert) => {
+    QUnit.test('multipleTimeslotStockTracker getTotalMoney,getTotalProfit', assert => {
         let done1 = assert.async();
         let done2 = assert.async();
 
@@ -58,12 +58,12 @@ QUnit.module('basic functions', () => {
         stock.sell(3, new Date('2016-7-25'));
 
 
-        stock.getTotalMoney().then((money) => {
+        stock.getTotalMoney().then(money => {
             assert.equal(money, 1617.98);
             done1();
         });
 
-        stock.getTotalProfit().then((profit) => {
+        stock.getTotalProfit().then(profit => {
             assert.equal(profit, 271.36);
             done2();
         });
@@ -71,7 +71,7 @@ QUnit.module('basic functions', () => {
 
 
 
-    QUnit.test('singeTimeslotStockTracker', (assert) => {
+    QUnit.test('singeTimeslotStockTracker', assert => {
         let s = new singleTimeslotStockTracker(10, 'aapl', new Date('2016-1-4'));
 
         assert.equal(JSON.stringify(s.getDate()), '\"2016-01-04T08:00:00.000Z\"');
@@ -81,7 +81,7 @@ QUnit.module('basic functions', () => {
 
 
 
-    QUnit.skip('Util getTickerFromName', (assert) => {
+    QUnit.skip('Util getTickerFromName', assert => {
         console.log(Util.getTickerFromName('apple'));
 
         assert.equal(Util.getTickerFromName('microsoft'), 10);
@@ -92,7 +92,7 @@ QUnit.module('basic functions', () => {
 
 
 QUnit.module('Portfolio', () => {
-    QUnit.test('buy', (assert) => {
+    QUnit.test('buy', assert => {
         let done = assert.async();
 
         let p = new Portfolio(10000);

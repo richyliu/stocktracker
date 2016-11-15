@@ -78,7 +78,7 @@ class PatternLookup {
     static lookupPattern(pattern, begin, end, ticker) {
         if (!pattern instanceof Pattern) return;
 
-        Util.getStockOHLCFromTimeRange(this.begin, this.end, this.ticker).then((ohlc) => {
+        Util.getStockOHLCFromTimeRange(this.begin, this.end, this.ticker).then(ohlc => {
 
         });
     }

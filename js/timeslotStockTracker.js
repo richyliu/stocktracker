@@ -9,8 +9,8 @@ class singleTimeslotStockTracker {
         this.time = time || Util.getLastValidDate();
         this.amount = amount;
         this.ticker = ticker;
-        Util.getStockPriceFromTimestamp(this.time, this.ticker).then((self) => {
-            return (price) => {
+        Util.getStockPriceFromTimestamp(this.time, this.ticker).then(self => {
+            return price => {
                 self.price = price;
             };
         }(this));
@@ -69,9 +69,9 @@ class multipleTimeslotStockTracker {
             let totalMoney = 0;
             let totalMoneyCalculated = new Array(this.totalStock.length).fill(false);
 
-            this.totalStock.forEach((curStock) => {
+            this.totalStock.forEach(curStock => {
                 Util.getStockPriceFromTimestamp(date, this.ticker).then((i, curStock, resolve) => {
-                    return (price) => {
+                    return price => {
                         totalMoney += price * curStock.getAmount();
                         totalMoneyCalculated[i] = true;
 
@@ -92,10 +92,10 @@ class multipleTimeslotStockTracker {
     getTotalProfit() {
         return new Promise((resolve, reject) => {
             this.getTotalMoney().then((self, resolve) => {
-                return (totalMoney) => {
+                return totalMoney => {
                     let totalPrevMoney = 0;
 
-                    self.totalStock.forEach((curStock) => {
+                    self.totalStock.forEach(curStock => {
                         totalPrevMoney += curStock.getPrice() * curStock.getAmount();
                     });
 
@@ -112,7 +112,7 @@ class multipleTimeslotStockTracker {
             this.totalStock.push(new singleTimeslotStockTracker(amount, this.ticker, date));
 
             // how much stock costs
-            Util.getStockPriceFromTimestamp(date, this.ticker).then((price) => {
+            Util.getStockPriceFromTimestamp(date, this.ticker).then(price => {
                 resolve(Util.round(amount * price));
             });
         });
@@ -160,13 +160,13 @@ class multipleTimeslotStockTracker {
             let self = this;
 
             // loop through all soldStocks to calculate profit
-            soldStocks.forEach((soldStock) => {
+            soldStocks.forEach(soldStock => {
                 // wrap in iife in order for soldStock[i].getAmount() to be used
                 Util.getStockPriceFromTimestamp(soldStock.getDate(), this.ticker).then((currentSoldStockAmount, i, resolve) => {
-                    return (pastPrice) => {
+                    return pastPrice => {
                         // use self bc "this" referes to the function() {} scope
                         Util.getStockPriceFromTimestamp(date, self.ticker).then((currentSoldStockAmount, i, resolve) => {
-                            return (curPrice) => {
+                            return curPrice => {
                                 totalCurrent += curPrice * currentSoldStockAmount;
                                 totalPast += pastPrice * currentSoldStockAmount;
                                 soldStocksCalculated[i] = true;

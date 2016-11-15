@@ -27,10 +27,10 @@ class Util {
     // WIP
     static getTickerFromName(stockName) {
         return new Promise((resolve, reject) => {
-            PreUtil.runOnceTickerCsvLoaded().then(((resolve) => {
+            PreUtil.runOnceTickerCsvLoaded().then((resolve => {
                 let allCsv = PreUtil.getTickerCsv();
 
-                allCsv.forEach((curCsv) => {
+                allCsv.forEach(curCsv => {
                     if (curCsv[1].toLowerCase().indexOf(stockName.toLowerCase()) > -1) {
                         resolve(curCsv);
                     }
@@ -59,7 +59,7 @@ class Util {
         document.body.appendChild(script);
 
         return new Promise((resolve, reject) => {
-            window[callbackName] = (resp) => {
+            window[callbackName] = resp => {
                 delete window[callbackName];
                 document.body.removeChild(script);
 
@@ -73,7 +73,7 @@ class Util {
                     let quotes = resp.query.results.quote;
 
                     let data = [];
-                    quotes.forEach((quote) => {
+                    quotes.forEach(quote => {
                         // round numbers for consistency
                         data.push(Util.round(quote[type]));
                     });
@@ -90,9 +90,9 @@ class Util {
 
     static getStockPriceFromTimeRange(begin, end, ticker, type = this.tickerTypes().close) {
         return new Promise((resolve, reject) => {
-            this.getStockPriceAndTimestamp(begin, end, ticker, type).then((prices) => {
+            this.getStockPriceAndTimestamp(begin, end, ticker, type).then(prices => {
                 let data = [];
-                prices.forEach((price) => {
+                prices.forEach(price => {
                     data.push(price[1]);
                 });
 
@@ -108,7 +108,7 @@ class Util {
             this.getStockPriceDatabase(begin, end, ticker, type).then((data, rawResp) => {
                 // array of 2 elements within array
                 let newData = [];
-                data.forEach((curData) => {
+                data.forEach(curData => {
                     // element 0 is the timestamp, and element 1 is the data
                     newData.push([new Date(rawResp.query.results.quote[i].Date).getTime(), parseFloat(curData)]);
                 });
@@ -124,7 +124,7 @@ class Util {
         if (this.isMarketClosed(time)) throw new Error('Market is not open on ' + time.toDateString());
 
         return new Promise((resolve, reject) => {
-            this.getStockPriceDatabase(this.getLastValidDate(this.subtractDate(time, 1)), time, ticker, type).then((data) => {
+            this.getStockPriceDatabase(this.getLastValidDate(this.subtractDate(time, 1)), time, ticker, type).then(data => {
                 // return the price of the stock
                 resolve(data[0]);
             });
@@ -137,25 +137,25 @@ class Util {
         return new Promise((resolve, reject) => {
             let ohlcData = [];
 
-            this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().open).then((data) => {
+            this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().open).then(data => {
                 console.log(data);
                 ohlcData.push(data);
 
                 if (ohlcData.length === 4) allDone();
             });
-            this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().high).then((data) => {
+            this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().high).then(data => {
                 console.log(data);
                 ohlcData.push(data);
 
                 if (ohlcData.length === 4) allDone();
             });
-            this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().low).then((data) => {
+            this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().low).then(data => {
                 console.log(data);
                 ohlcData.push(data);
 
                 if (ohlcData.length === 4) allDone();
             });
-            this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().close).then((data) => {
+            this.getStockPriceDatabase(begin, end, ticker, this.tickerTypes().close).then(data => {
                 console.log(data);
                 ohlcData.push(data);
 
@@ -180,7 +180,7 @@ class Util {
 
 
     static drawChart(startDate, endDate, ticker, type) {
-        this.getStockPriceAndTimestamp(startDate, endDate, ticker, type).then((data) => {
+        this.getStockPriceAndTimestamp(startDate, endDate, ticker, type).then(data => {
             // console.log(data);
 
 
@@ -305,20 +305,20 @@ class PreUtil {
         // http://www.nasdaq.com/screening/companies-by-industry.aspx?exchange=NYSE&render=download
 
 
-        Util.XMLHttpRequest('data/all.csv').then((allText) => {
+        Util.XMLHttpRequest('data/all.csv').then(allText => {
             let allTextLines = allText.split(/\r\n|\n/);
             let headers = allTextLines[0]
                     .slice(1, -2)           // remove leading " and trailing ",
                     .split('","');          // split with ","
             let lines = [];
 
-            allTextLines.forEach((textLine) => {
+            allTextLines.forEach(textLine => {
                 let data = textLine
                     .slice(1, -2)           // remove leading " and trailing ",
                     .split('","');          // split with ","
                 if (data.length === headers.length) {
                     let tarr = [];
-                    data.forEach((curData) => {
+                    data.forEach(curData => {
                         tarr.push(curData);
                     });
                     lines.push(tarr);

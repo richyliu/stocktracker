@@ -33,10 +33,10 @@ class Portfolio {
 
     buy(ticker, amount, date = Util.getLastValidDate()) {
         return new Promise((resolve, reject) => {
-            this.stockTrackers.forEach((stockTracker) => {
+            this.stockTrackers.forEach(stockTracker => {
                 if (stockTracker.getTicker() === ticker) {
                     stockTracker.buy(amount, date).then((self, resolve) => {
-                        return (cost) => {
+                        return cost => {
                             // deduct cost from cash
                             self.cash -= cost;
                             resolve();
@@ -56,7 +56,7 @@ class Portfolio {
 
     sell(ticker, amount, date = Util.getLastValidDate()) {
         return new Promise((resolve, reject) => {
-            this.stockTrackers.forEach((stockTracker) => {
+            this.stockTrackers.forEach(stockTracker => {
                 if (stockTracker.getTicker() === ticker) {
                     stockTracker.sell(amount, date).then((self, callback) => {
                         return (profit, money) => {
@@ -86,8 +86,8 @@ class Portfolio {
         let totalStockMoney = 0;
         let totalStockMoneyCalculated = new Array(this.totalStock.length).fill(false);
 
-        this.stockTrackers.forEach((stockTracker) => {
-            stockTracker.getTotalMoney().then((money) => {
+        this.stockTrackers.forEach(stockTracker => {
+            stockTracker.getTotalMoney().then(money => {
                 totalStockMoney += money;
                 totalStockMoneyCalculated[i] = true;
 
@@ -102,8 +102,8 @@ class Portfolio {
 
     getTotalStockProfit() {
         let totalStockProfit = 0;
-        this.stockTrackers.forEach((stockTracker) => {
-            stockTracker.getTotalProfit().then((money) => {
+        this.stockTrackers.forEach(stockTracker => {
+            stockTracker.getTotalProfit().then(money => {
                 totalStockProfit += money;
             });
         });
