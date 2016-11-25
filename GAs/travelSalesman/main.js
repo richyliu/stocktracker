@@ -3,8 +3,8 @@ const HALF_POP = 8;
 
 let best = 0;
 let population = [];
+let dataPoints = [];
 
-const NUM_NODES = 9;
 const NODE_MAP = {
     1: [0, 4],
     2: [1, 1],
@@ -14,20 +14,24 @@ const NODE_MAP = {
     6: [3, 3],
     7: [6, 6],
     8: [2, 6],
-    9: [3, 7]
+    9: [3, 7],
+    10: [5, 5],
+    11: [8, 8]
 };
+const NUM_NODES = Object.keys(NODE_MAP).length;
 
 /*
 
-.        9
-.     8        7
-.
-1
-.        6        3
-.                 4
-.  2
-.  .  .  .  .  5  .
-
+8 .                    B
+  .        9
+6 .     8        7
+  .           A
+4 1
+  .        6        3
+2 .                 4
+  .  2
+  .  .  .  .  .  5  .  .
+     2     4     6     8
 */
 
 
@@ -37,41 +41,31 @@ main();
 
 function main() {
     population = [
-        [5, 1, 3, 7, 4, 6, 8, 2, 9],
-        [8, 1, 3, 2, 5, 9, 4, 6, 7],
-        [3, 2, 9, 4, 5, 7, 6, 8, 1],
-        [4, 8, 1, 7, 9, 5, 6, 3, 2],
-        [5, 9, 1, 3, 7, 4, 6, 8, 2],
-        [8, 1, 3, 9, 2, 5, 4, 6, 7],
-        [9, 3, 2, 4, 5, 7, 6, 8, 1],
-        [4, 8, 1, 7, 5, 6, 3, 9, 2],
-        [5, 1, 3, 7, 4, 9, 6, 8, 2],
-        [8, 1, 3, 9, 2, 5, 4, 6, 7],
-        [3, 2, 4, 5, 7, 9, 6, 8, 1],
-        [4, 8, 1, 7, 5, 6, 3, 9, 2],
-        [5, 1, 3, 7, 4, 9, 6, 8, 2],
-        [8, 1, 9, 3, 2, 5, 4, 6, 7],
-        [3, 2, 4, 5, 7, 6, 8, 9, 1],
-        [4, 8, 1, 7, 9, 5, 6, 3, 2],
-    ]
+        [5, 1, 3, 7, 4, 10, 11, 6, 8, 2, 9],
+        [8, 1, 3, 2, 5, 9, 10, 11, 4, 6, 7],
+        [3, 2, 10, 11, 9, 4, 5, 7, 6, 8, 1],
+        [4, 8, 1, 7, 9, 5, 6, 3, 10, 11, 2],
+        [10, 11, 5, 9, 1, 3, 7, 4, 6, 8, 2],
+        [8, 1, 10, 11, 3, 9, 2, 5, 4, 6, 7],
+        [9, 3, 2, 4, 10, 11, 5, 7, 6, 8, 1],
+        [4, 8, 1, 7, 5, 6, 10, 11, 3, 9, 2],
+        [5, 1, 3, 10, 11, 7, 4, 9, 6, 8, 2],
+        [8, 1, 3, 9, 2, 5, 4, 6, 10, 11, 7],
+        [3, 2, 4, 5, 7, 9, 10, 11, 6, 8, 1],
+        [4, 8, 1, 7, 10, 11, 5, 6, 3, 9, 2],
+        [5, 1, 10, 11, 3, 7, 4, 9, 6, 8, 2],
+        [8, 1, 9, 3, 2, 5, 10, 11, 4, 6, 7],
+        [3, 2, 4, 5, 7, 6, 10, 11, 8, 9, 1],
+        [4, 8, 1, 10, 11, 7, 9, 5, 6, 3, 2],
+    ];
+    setupChart();
     
     Array.apply(null, {length: 120}).map(Number.call, Number).every((i) => {
         nextGeneration();
         
-        /*
+        
         // update chart
         dataPoints.push({y: best});
-        
-        $('#generation').html(parseInt($('#generation').html()) + 1);
-        $('#population').html('');
-        population.forEach(route => {
-            $('#population').append(`
-                <div style="display: inline">
-                    ${route}
-                </div>
-            `);
-        });
-        $('#best').html(best);*/
         
         // console.log(population);
         console.log(best);
@@ -80,6 +74,7 @@ function main() {
         else return true;
     });
     
+    chart.render();
     console.log(population);
 }
 
@@ -190,6 +185,19 @@ function mutate(route) {
 
 function setupChart() {
 	chart = new CanvasJS.Chart("chartContainer",{
+		title :{
+			text: "Best Fitness"
+		},
+		data: [{
+			type: "line",
+			dataPoints: dataPoints
+		}]
+	});
+}
+
+
+function setupChart() {
+	chart = new CanvasJS.Chart("chartContainer", {
 		title :{
 			text: "Best Fitness"
 		},
