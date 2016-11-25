@@ -116,7 +116,7 @@ function mutate(string, fitness) {
 
 
 
-String.prototype.replaceAt = function(index, character) {
+String.prototype.replaceAt = (index, character) => {
     return this.substr(0, index) + character + this.substr(index + character.length);
 };
 

@@ -1,71 +1,64 @@
-let MUTATION_WEIGHT = 5.5;
-const HALF_GENERATION_SIZE = 8;
+const MUTATION_WEIGHT = 5.5;
+const HALF_POP = 8;
 
 let best = 0;
-let population;
+let population = [];
 
-const NUM_NODES = 5;
+const NUM_NODES = 9;
 const NODE_MAP = {
-    1: {
-        2: 20,
-        3: 5,
-        4: 10,
-        5: 5
-    },
-    2: {
-        1: 20,
-        3: 30,
-        4: 20,
-        5: 10,
-    },
-    3: {
-        1: 5,
-        2: 30,
-        4: 15,
-        5: 10
-    },
-    4: {
-        1: 10,
-        2: 20,
-        3: 15,
-        5: 5,
-    },
-    5: {
-        1: 5,
-        2: 10,
-        3: 10,
-        4: 5,
-    }
+    1: [0, 4],
+    2: [1, 1],
+    3: [7, 3],
+    4: [7, 2],
+    5: [6, 0],
+    6: [3, 3],
+    7: [6, 6],
+    8: [2, 6],
+    9: [3, 7]
 };
 
+/*
+
+.        9
+.     8        7
+.
+1
+.        6        3
+.                 4
+.  2
+.  .  .  .  .  5  .
+
+*/
 
 
-// main();
+
+main();
 
 
 function main() {
     population = [
-        'a rstast f67',
-        'cvrfaxc92,v7',
-        'z3,x08zorinl',
-        'z8xclm,5inus',
-        'nxcuyn3epnos',
-        'aarst stffxf',
-        'cvrf xc92,!s',
-        'z3,x08zori%a',
-        'cu3 s9x f3 9',
-        ',,3,45m3,el9',
-        'cvrf xc92,!s',
-        'z3,x08zori%a',
-        'cu3 s9x f3 9',
-        ',,3,45m3,el9',
-        'z,3,45m3,el9',
-        ',s3,45m2,el9'
-    ];
+        [5, 1, 3, 7, 4, 6, 8, 2, 9],
+        [8, 1, 3, 2, 5, 9, 4, 6, 7],
+        [3, 2, 9, 4, 5, 7, 6, 8, 1],
+        [4, 8, 1, 7, 9, 5, 6, 3, 2],
+        [5, 9, 1, 3, 7, 4, 6, 8, 2],
+        [8, 1, 3, 9, 2, 5, 4, 6, 7],
+        [9, 3, 2, 4, 5, 7, 6, 8, 1],
+        [4, 8, 1, 7, 5, 6, 3, 9, 2],
+        [5, 1, 3, 7, 4, 9, 6, 8, 2],
+        [8, 1, 3, 9, 2, 5, 4, 6, 7],
+        [3, 2, 4, 5, 7, 9, 6, 8, 1],
+        [4, 8, 1, 7, 5, 6, 3, 9, 2],
+        [5, 1, 3, 7, 4, 9, 6, 8, 2],
+        [8, 1, 9, 3, 2, 5, 4, 6, 7],
+        [3, 2, 4, 5, 7, 6, 8, 9, 1],
+        [4, 8, 1, 7, 9, 5, 6, 3, 2],
+    ]
     
     Array.apply(null, {length: 120}).map(Number.call, Number).every((i) => {
         nextGeneration();
         
+        /*
         // update chart
         dataPoints.push({y: best});
         
@@ -78,15 +71,16 @@ function main() {
                 </div>
             `);
         });
-        $('#best').html(best);
+        $('#best').html(best);*/
         
         // console.log(population);
-        // console.log(best);
+        console.log(best);
         
         if (best === 0) return false;
         else return true;
     });
-    chart.render();
+    
+    console.log(population);
 }
 
 
@@ -103,59 +97,93 @@ function nextGeneration() {
     curPop.sort((a, b) => a[1] > b[1] ? 1 : (a[1] < b[1] ? -1 : 0));
     best = curPop[0][1];
     
-    // "kill" half of the routes
-    curPop.splice(HALF_GENERATION_SIZE);
+    // turn back into normal array
+    curPop = curPop.map(item => item[0]);
     
-    // duplicate and mutate routes (also turns back into normal array)
-    for (let i = 0; i < HALF_GENERATION_SIZE; i += 2) {
-        const child = breed(curPop[i][0], curPop[i + 1][0]);
-        const fitness = (curPop[i][1] + curPop[i + 1][1]) / 2;
+    // breed good parents and set child to be bad half of routes
+    for (let i = 0; i < HALF_POP; i += 2) {
+        const child = breed(curPop[i], curPop[i + 1]);
         
-        curPop[i] = mutate(child, fitness);
-        curPop[i + 1] = mutate(child, fitness);
-        curPop[i + HALF_GENERATION_SIZE] = mutate(child, fitness);
-        curPop[i + HALF_GENERATION_SIZE + 1] = mutate(child, fitness);
+        curPop[i + HALF_POP] = mutate(child);
+        curPop[i + 1 + HALF_POP] = mutate(child);
     }
     
-    console.log(Math.ceil(best / MUTATION_WEIGHT));
     population = Array.from(curPop);
+}
+
+
+function breed(parent1, parent2) {
+    //     *  *  *
+    // [3, 2, 5, 6, 4, 1]
+    // [2, 5, 4, 1, 3, 6]
+    // [1, 2, 5, 6, 3, 4]
+    
+    let child = [];
+    let subsetStart = randomRange(1, NUM_NODES - 2);
+    let subsetEnd = randomRange(subsetStart + 1, NUM_NODES);
+    let g;
+    // console.log('subsetStart: ' + subsetStart);
+    // console.log('subestEnd: ' + subsetEnd);
+    
+    // fill the child array with the subset from parent1
+    child = child.concat(Array(subsetStart).fill(null));
+    child = child.concat(parent1.slice(subsetStart, subsetEnd));
+    child = child.concat(Array(NUM_NODES - subsetEnd).fill(null));
+    g = getArrayNullIndex(child);
+    // console.log(child);
+    
+    // loop through end of parent2 and add to child
+    for (let i = 0; i < NUM_NODES; i++) {
+        if (!child.includes(parent2[i])) {
+            // console.log(i);
+            child[g.next().value] = parent2[i];
+        }
+    }
+    // console.log(child);
+    
+    function* getArrayNullIndex(array){
+        for (let i = 0; i <= array.length; i++) {
+            if (array[i] === null) {
+                yield i;
+            }
+        }
+    }
+    
+    
+    return child;
 }
 
 
 function getFitness(route) {
     let fitness = 0;
-    let segments = [];
-    
-    // get segments
-    for (let i = 0; i < route.length; i++) {
-        segments.push([route[i], route[i + 1]]);
-    }
     
     // calculate distance from segments
-    segments.forEach((segment) => {
-        fitness += NODE_MAP[segment[0]][segment[1]];
-    });
+    for (let i = 0; i < NUM_NODES - 1; i++) {
+        fitness += pointDistance(NODE_MAP[route[i]], NODE_MAP[route[i + 1]]);
+    }
+    
+    function pointDistance(a, b) {
+        const deltaX = a[0] - b[0];
+        const deltaY = a[1] - b[1];
+        
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
     
     return fitness;
 }
 
 
-function breed(route1, route2) {
-    const slicePoint = Math.floor(route1.length / 2);
-    return route1.slice(0, slicePoint) + route2.slice(slicePoint, route1.length);
-}
-
-
-function mutate(route, fitness) {
-    const mutatedness = Math.ceil(fitness / MUTATION_WEIGHT);
-    const mutateLetter = Math.floor(Math.random() * route.length);
-    let letterCharCode = route.charCodeAt(mutateLetter) +
-        Math.floor(Math.random() * (mutatedness * 2 + 1)) - mutatedness; //gives random number between -1 and 1
+function mutate(route) {
+    const swap1 = Math.floor(Math.random() * route.length);
+    let swap2 = Math.floor(Math.random() * route.length);
+    // ensures swap2 isn't the same as swap1
+    while (swap2 === swap1) swap2 = Math.floor(Math.random() * route.length);
     
-    if (letterCharCode < 32) letterCharCode = 32;
-    if (letterCharCode > 132) letterCharCode = 132;
+    const temp = route[swap1];
+    route[swap1] = route[swap2];
+    route[swap2] = temp;
     
-    return route.replaceAt(mutateLetter, route.fromCharCode(letterCharCode));
+    return route;
 }
 
 
@@ -170,4 +198,11 @@ function setupChart() {
 			dataPoints: dataPoints
 		}]
 	});
+}
+
+
+// start inclusive and end exclusive
+// returns integer
+function randomRange(start, end) {
+    return Math.floor(Math.random() * (end - start)) + start;
 }

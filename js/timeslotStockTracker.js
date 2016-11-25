@@ -164,7 +164,7 @@ class multipleTimeslotStockTracker {
                 // wrap in iife in order for soldStock[i].getAmount() to be used
                 Util.getStockPriceFromTimestamp(soldStock.getDate(), this.ticker).then((currentSoldStockAmount, i, resolve) => {
                     return pastPrice => {
-                        // use self bc "this" referes to the function() {} scope
+                        // use self bc "this" referes to the () => {} scope
                         Util.getStockPriceFromTimestamp(date, self.ticker).then((currentSoldStockAmount, i, resolve) => {
                             return curPrice => {
                                 totalCurrent += curPrice * currentSoldStockAmount;
