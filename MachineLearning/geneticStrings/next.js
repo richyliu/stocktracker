@@ -39,7 +39,7 @@ function main() {
         ',s3,45m2,el9'
     ];
     
-    Array.apply(null, {length: 120}).map(Number.call, Number).every((i) => {
+    Array.apply(null, {length: 120}).map(Number.call, Number).every(i => {
         nextGeneration();
         
         // update chart
