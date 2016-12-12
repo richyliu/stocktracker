@@ -19,8 +19,11 @@ function main() {
 }
 
 
+
+
 function sigmoid(x) {
     return 1 / (1 + Math.pow(Math.E, -x));
+    // return Math.tanh(0.5 * x);
 }
 
 
