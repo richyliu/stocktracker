@@ -2,12 +2,36 @@ import numpy as np
 
 
 
+# english and chinese words
+data = [
+    [
+        'word',
+        'skill',
+        'learn',
+        'train',
+        'offer',
+        'alike',
+        'be',
+        'can'
+    ], [
+        'nihao',
+        'women',
+        'shang',
+        'xui',
+        'qi',
+        'pao',
+        'qian',
+        'da'
+    ]
+]
+
+
 
 class NeuralNetwork(object):
     def __init__(self, numInputs, numOutputs):
         self.numInputs = numInputs
         self.numOutputs = numOutputs
-        self.numHidden = 10
+        self.numHidden = 3
         
         # build the neural network
         # no need for inputs b/c they are always constant
@@ -21,8 +45,11 @@ class NeuralNetwork(object):
         for syn in self.hidden:
             hiddenOut.append(syn.forward(inputs))
         
+        output = []
         for syn in self.output:
-            syn.forward(hiddenOut)
+            output.append(syn.forward(hiddenOut))
+        
+        return output
     
     
     def blah(self):
@@ -33,8 +60,7 @@ class NeuralNetwork(object):
 
 class Synapse(object):
     def __init__(self, numAxons):
-        # self.weight = np.random.rand(numAxons)
-        self.weight = 1
+        self.weight = np.random.rand(numAxons)
         self.numAxons = numAxons
     
     
@@ -59,10 +85,3 @@ class Synapse(object):
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
-
-
-
-
-if __name__ == '__main__':
-    nn = NeuralNetwork(5, 2)
-    print(nn.run([2, 3, 4, 2, 1]))
