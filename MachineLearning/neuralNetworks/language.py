@@ -5,23 +5,23 @@ import numpy as np
 # english and chinese words
 data = [
     [
-        'word',
+        'world',
         'skill',
         'learn',
         'train',
         'offer',
         'alike',
-        'be',
-        'can'
+        'being',
+        'could'
     ], [
         'nihao',
         'women',
         'shang',
-        'xui',
-        'qi',
-        'pao',
-        'qian',
-        'da'
+        'xuixi',
+        'dajia',
+        'jiang',
+        'zhong',
+        'meili'
     ]
 ]
 
@@ -52,7 +52,7 @@ class NeuralNetwork(object):
         return output
     
     
-    def blah(self):
+    def calculateError(self):
         pass
 
 
@@ -85,3 +85,12 @@ class Synapse(object):
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
+
+def letterToNumber(letter):
+    return 1/26 * (ord(letter) - 96)
+
+
+if __name__ == '__main__':
+    nn = NeuralNetwork(5, 2)
+    nn.run([0.1, 0.4, 0.2, 0.7, 0.5])
+    
