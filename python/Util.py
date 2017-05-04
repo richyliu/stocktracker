@@ -20,7 +20,13 @@ Returns:
 
 """
 # get last trade day going back from date
-def getLastTradeDay(date=datetime.now().date()):
+def getLastTradeDay(date=None):
+    if date is None:
+        if datetime.now().hour < 16:
+            date = datetime.now()-timedelta(days=1)
+        else:
+            date = datetime.now()
+    
     # 0 is monday 4 is friday (weekday)
     if date.weekday() < 5:
         return date
@@ -63,18 +69,20 @@ def getStockPrice(ticker, begin, end):
         end.day,
         end.year,
     )
-    # print(url)
     
-    # request url, splitting csv by newline and remove header and last newline
-    response = urllib.request.urlopen(url).read().decode('utf-8').split('\n')[1:-1]
+    
+    try:
+        # request url, splitting csv by newline and remove header and last newline
+        response = urllib.request.urlopen(url).read().decode('utf-8').split('\n')[1:-1]
+    except urllib.error.HTTPError:
+        print('ERROR!: ', url)
+    
     # split each line by a comma
     processed = [r.split(',') for r in response]
     # turn the first element into a date
     processed = [[parse(r[0])] + r[1:] for r in processed]
     # round numbers for consistency
     processed = [[round(float(item), 2) if not isinstance(item, datetime) else item for item in r] for r in processed]
-    
-    # print(processed)
     
     return processed
 

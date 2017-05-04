@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta    
 from Util import *
 
 
@@ -6,17 +5,17 @@ from Util import *
 """
 Tracks stocks bought and sold for one stock ticker
 """
-class Ticker:
-    def __init__(self, ticker, amount, date):
+class Stock:
+    def __init__(self, ticker):
         # Ticker of the stock
         self.ticker = ticker
         # When the stock was bought and amount (datetime, amount)
-        self.buyDates = [[date, amount]]
+        self.buyDates = []
+        # sum of buyDates amounts
+        self.amount = 0
     
     
     def __str__(self):
-        amount = sum([bd[1] for bd in self.buyDates])
-        
         return """
         ---------------------------------------------------------
         Ticker: \t{} 
@@ -30,9 +29,9 @@ class Ticker:
         """.format(
             self.ticker,
             self.buyDates[-1][0].strftime('%Y-%m-%d %H:%M:%S'),
-            amount,
-            round(self.getValue() / amount, 2),
-            round(self.getProfit() / amount, 2),
+            self.amount,
+            round(self.getValue() / self.amount, 2),
+            round(self.getProfit() / self.amount, 2),
             round(self.getValue(), 2),
             round(self.getProfit(), 2),
         )
@@ -48,14 +47,9 @@ class Ticker:
     Returns:
         float: Value of all stock
     """
-    def getValue(self, count=None, date=None):
+    def getValue(self, count=None, date=getLastTradeDay()):
         if count is None:
-            count = sum([item[1] for item in self.buyDates])
-        if date is None:
-            if datetime.now().hour < 16:
-                date = datetime.now()-timedelta(days=1)
-            else:
-                date = datetime.now()
+            count = self.amount
         date = getLastTradeDay(date)
         
         return count * getStockClose(self.ticker, date)
@@ -74,15 +68,9 @@ class Ticker:
     Returns:
         float: Value of all stock. May be negative
     """
-    def getProfit(self, count=None, date=None):
+    def getProfit(self, count=None, date=getLastTradeDay()):
         if count is None:
-            count = sum([item[1] for item in self.buyDates])
-        # TODO: put this in util.getLastTradeDay
-        if date is None:
-            if datetime.now().hour < 16:
-                date = datetime.now()-timedelta(days=1)
-            else:
-                date = datetime.now()
+            count = self.amount
         date = getLastTradeDay(date)
         
         # costs of all the shares of the stocks that were bough on different days
@@ -103,13 +91,9 @@ class Ticker:
     Returns:
         integer: cost to buy stocks
     """
-    def buy(self, count, date=None):
-        if date is None:
-            if datetime.now().hour < 16:
-                date = datetime.now()-timedelta(days=1)
-            else:
-                date = datetime.now()
-        
+    def buy(self, count, date=getLastTradeDay()):
+        date = getLastTradeDay(date)
+        self.amount = self.amount + count
         self.buyDates.append([date, count])
         
         return count * getStockClose(self.ticker, date)
@@ -123,34 +107,52 @@ class Ticker:
     
     Args:
         count (integer): Number of stocks to sell
-        date (date): Date to sell the stocks on (optional)
+        date (date): Date to sell the stocks on (optional). Must be after stocks
+        were bought, otherwise throw error. If not enough stocks to sell, it
+        sells all of them.
     
     Returns:
-        integer: money made from selling stocks
+        integer[]: 1: money made, 2: profit
     """
-    def sell(self, count, date=None):
-        if date is None:
-            if datetime.now().hour < 16:
-                date = datetime.now()-timedelta(days=1)
-            else:
-                date = datetime.now()
+    def sell(self, count, date=getLastTradeDay()):
+        date = getLastTradeDay(date)
+        
+        
+        curCount = count
+        originalCost = 0 # original cost of the stocks
+        removeList = [] # buyDate that need to be removed
         
         # starts looping from oldest buy date
-        curCount = count
         for bd in self.buyDates:
+            # if stock bought after sell date
+            if bd[0] > date:
+                # break because all other stocks will be newer than this one
+                break
+            self.amount = self.amount - min(bd[1], curCount)
+            originalCost = originalCost + min(bd[1], curCount) * getStockClose(self.ticker, bd[0])
+            
+            # subtract buyDate amount from curCount and curCount from buyDate
             tempcount = curCount
             curCount = curCount - bd[1]
-            bd[1] = bd[1] - tempcount
-            # sell only part of this buyDate
-            if bd[1] > curCount:
-                break
+            bd[1] = bd[1] - tempcount # might be negative if bd[1] < curCount, but is removed anyways
+            
+            
             # sell all of the buyDate, potentialy more
-            else:
-                self.buyDates.remove(bd)
+            if bd[1] <= 0:
+                # need to remove, set to None
+                removeList.append(bd)
                 # if no more to sell
                 if curCount == 0:
                     break
+            # no more to sell
+            else:
+                break
         
-        # print(self.buyDates)
+        # remove buyDate that need to be removed
+        for item in removeList:
+            self.buyDates.remove(item)
         
-        return count * getStockClose(self.ticker, date)
+        
+        
+        # 1: money made, 2: profit
+        return [count * getStockClose(self.ticker, date), count * getStockClose(self.ticker, date) - originalCost]
